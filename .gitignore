@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+venv/
+.env
+
+# Model files
+models/
+*.pth
+*.pt
+
+# Uploaded videos
+uploads/
+*.mp4
+*.avi
+
+# System files
+.DS_Store
+Thumbs.db

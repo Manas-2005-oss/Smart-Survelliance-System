@@ -1,0 +1,215 @@
+ <!DOCTYPE html>
+
+<html>
+<head>
+<title>Smart Surveillance</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+.container{
+display:flex;
+justify-content:center;
+align-items:flex-start;
+gap:40px;
+margin-top:50px;
+flex-wrap:wrap;
+}
+
+h1{
+font-size:40px;
+margin-top:30px;
+}
+
+.card{
+background:#1e293b;
+padding:30px;
+border-radius:15px;
+display:inline-block;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+width:500px;
+}
+
+input{
+margin:15px;
+}
+
+button{
+padding:10px 25px;
+border:none;
+border-radius:8px;
+background:#3b82f6;
+color:white;
+font-size:16px;
+cursor:pointer;
+margin:5px;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+.stopBtn{
+background:#ef4444;
+}
+
+.stopBtn:hover{
+background:#dc2626;
+}
+
+#status{
+margin-top:20px;
+font-size:20px;
+font-weight:bold;
+}
+
+video{
+margin-top:20px;
+width:100%;
+border-radius:10px;
+}
+
+.live-box{
+margin-top:15px;
+}
+
+img{
+width:100%;
+border-radius:10px;
+}
+.live-controls{
+margin-top:20px;
+margin-bottom:20px;
+display:flex;
+justify-content:center;
+gap:15px;
+}
+
+.stopBtn{
+background:#ef4444;
+}
+
+.stopBtn:hover{
+background:#dc2626;
+}
+
+#liveFeed{
+width:100%;
+border-radius:10px;
+margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>Smart Surveillance System</h1>
+
+<div class="container">
+
+<!-- LEFT SIDE : VIDEO UPLOAD -->
+
+<div class="card">
+
+<h2>Upload Video Analysis</h2>
+
+<input type="file" id="videoFile"><br>
+
+<button onclick="upload()">Analyze Video</button>
+
+<div id="status"></div>
+
+<video id="preview" controls></video>
+
+</div>
+
+<!-- RIGHT SIDE : LIVE DETECTION -->
+ <div class="card">
+
+<h2>🔴 Live Detection</h2>
+
+<div class="live-controls">
+
+<button onclick="startDetection()">Start Camera</button>
+<button onclick="stopDetection()" class="stopBtn">Stop Camera</button>
+
+</div>
+
+<img id="liveFeed">
+
+</div>
+
+</div>
+
+<script>
+
+async function upload(){
+
+let fileInput=document.getElementById("videoFile")
+let file=fileInput.files[0]
+
+if(!file){
+alert("Select video first")
+return
+}
+
+document.getElementById("preview").src=URL.createObjectURL(file)
+
+let formData=new FormData()
+formData.append("file",file)
+
+document.getElementById("status").innerText="Processing..."
+
+let res=await fetch("/upload",{
+method:"POST",
+body:formData
+})
+
+let data=await res.json()
+
+let status=document.getElementById("status")
+
+status.innerText="Result: "+data.result+" | Confidence: "+data.confidence
+
+if(data.result==="VIOLENCE"){
+status.style.color="red"
+}else{
+status.style.color="lightgreen"
+}
+
+}
+
+
+// START CAMERA
+
+function startDetection(){
+
+fetch("/start_detection")
+
+document.getElementById("liveFeed").src="/video_feed"
+
+}
+
+
+// STOP CAMERA
+
+function stopDetection(){
+
+fetch("/stop_detection")
+
+document.getElementById("liveFeed").src=""
+
+}
+
+</script>
+
+</body>
+</html>
