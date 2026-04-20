@@ -1,22 +1,24 @@
-# Python
+# Python cache
 __pycache__/
 *.pyc
-*.pyo
 
-# Environment
-venv/
+# Environment files
 .env
+venv/
+env/
 
-# Model files
-models/
-*.pth
+# Dataset
+datasets/
+data/
+
+# Model weights
 *.pt
+*.pth
+*.h5
 
-# Uploaded videos
-uploads/
-*.mp4
-*.avi
+# Logs
+logs/
+*.log
 
-# System files
+# OS files
 .DS_Store
-Thumbs.db

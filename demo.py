@@ -25,18 +25,37 @@ def main():
         return
 
     model = CNN_GRU_Violence().to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device))
+
+    try:
+        model.load_state_dict(torch.load(model_path, map_location=device))
+    except Exception as e:
+        print("Error loading model:", e)
+        return
+
     model.eval()
-    
     print("Model loaded:", model_path)
 
     # ---------------------
     # YOLO Weapon Model
     # ---------------------
-    yolo_model = YOLO("yolov8n.pt")  # Using the smallest YOLOv8 model for speed
+    try:
+        yolo_model = YOLO("yolov8n.pt")
+    except Exception as e:
+        print("Error loading YOLO model:", e)
+        return
+
     print("YOLO model loaded for weapon detection.")
 
+    # ---------------------
+    # Webcam
+    # ---------------------
     cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return
+
+    cv2.namedWindow("Smart Surveillance System", cv2.WINDOW_NORMAL)
 
     frame_buffer = deque(maxlen=CLIP_LEN)
     prob_buffer = deque(maxlen=SMOOTHING_WINDOW)
@@ -52,6 +71,7 @@ def main():
         ret, frame = cap.read()
 
         if not ret:
+            print("Failed to grab frame.")
             break
 
         # ---------------------
@@ -66,7 +86,8 @@ def main():
                 cls = int(box.cls[0])
                 label = yolo_model.names[cls]
                 conf = float(box.conf[0])
-                print("Detected:", label, "Confidence:", conf)  # DEBUG
+
+                print("Detected:", label, "Confidence:", conf)
 
                 if label in ["scissors", "knife"]:
                     weapon_detected = True
@@ -74,19 +95,25 @@ def main():
                     x1, y1, x2, y2 = map(int, box.xyxy[0])
 
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                    cv2.putText (frame, f"{label} (weapon)",
-                                (x1, y1 - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+                    cv2.putText(
+                        frame,
+                        f"{label} (weapon)",
+                        (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (0, 0, 255),
+                        2,
+                    )
 
         label_text = "NORMAL"
-        box_color = (0,255,0)
+        box_color = (0, 255, 0)
         conf_text = ""
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        resized = cv2.resize(rgb,(FRAME_SIZE,FRAME_SIZE))
+        resized = cv2.resize(rgb, (FRAME_SIZE, FRAME_SIZE))
 
-        tensor = torch.from_numpy(resized).float()/255.0
-        tensor = tensor.permute(2,0,1)
+        tensor = torch.from_numpy(resized).float() / 255.0
+        tensor = tensor.permute(2, 0, 1)
 
         frame_buffer.append(tensor)
 
@@ -98,15 +125,15 @@ def main():
             with torch.no_grad():
 
                 logits = model(clip)
-                probs = torch.softmax(logits,dim=1)
+                probs = torch.softmax(logits, dim=1)
 
-                violence_prob = probs[0,1].item()
+                violence_prob = probs[0, 1].item()
 
             prob_buffer.append(violence_prob)
 
             if len(prob_buffer) == SMOOTHING_WINDOW:
 
-                avg_prob = sum(prob_buffer)/SMOOTHING_WINDOW
+                avg_prob = sum(prob_buffer) / SMOOTHING_WINDOW
 
                 if avg_prob >= VIOLENCE_THRESHOLD:
                     violence_counter += 1
@@ -116,13 +143,13 @@ def main():
                 if violence_counter >= VIOLENCE_CONFIRM_FRAMES:
 
                     label_text = "VIOLENCE"
-                    box_color = (0,0,255)
+                    box_color = (0, 0, 255)
                     conf_text = f"{avg_prob:.2f}"
 
                 else:
 
                     label_text = "NORMAL"
-                    box_color = (0,255,0)
+                    box_color = (0, 255, 0)
                     conf_text = f"{1-avg_prob:.2f}"
 
         # ---------------------
@@ -131,24 +158,44 @@ def main():
         if weapon_detected:
             label_text += " + WEAPON"
 
-        cv2.rectangle(frame,(10,10),(320,95),box_color,-1)
+        cv2.rectangle(frame, (10, 10), (320, 95), box_color, -1)
 
-        cv2.putText(frame,label_text,(20,45),
-                    cv2.FONT_HERSHEY_SIMPLEX,1.1,(255,255,255),3)
+        cv2.putText(
+            frame,
+            label_text,
+            (20, 45),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1.1,
+            (255, 255, 255),
+            3,
+        )
 
         if conf_text:
-            cv2.putText(frame,f"Conf: {conf_text}",(20,75),
-                        cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),2)
+            cv2.putText(
+                frame,
+                f"Conf: {conf_text}",
+                (20, 75),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (255, 255, 255),
+                2,
+            )
 
         curr_time = time.time()
-        fps = 1.0/(curr_time-prev_time+1e-6)
+        fps = 1.0 / (curr_time - prev_time + 1e-6)
         prev_time = curr_time
 
-        cv2.putText(frame,f"FPS: {fps:.1f}",
-                    (frame.shape[1]-120,frame.shape[0]-10),
-                    cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,255,255),1)
+        cv2.putText(
+            frame,
+            f"FPS: {fps:.1f}",
+            (frame.shape[1] - 120, frame.shape[0] - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            1,
+        )
 
-        cv2.imshow("Smart Surveillance System",frame)
+        cv2.imshow("Smart Surveillance System", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
@@ -156,6 +203,6 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
-    
+
 if __name__ == "__main__":
     main()
