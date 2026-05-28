@@ -1,3 +1,4 @@
+<img width="1814" height="881" alt="Screenshot 2026-04-06 195652" src="https://github.com/user-attachments/assets/af37f19e-7dd4-48ba-85dc-657d52fe361e" />
 # Smart Surveillance System
 
 AI-powered real-time surveillance system for detecting violence and weapons using Deep Learning and Computer Vision.
@@ -53,56 +54,6 @@ The system analyzes live video frames continuously and identifies potential thre
 | CNN-GRU                     | Violence Detection      |
 | NumPy                       | Numerical Computation   |
 | Flask / Streamlit (if used) | Web Interface           |
-
----
-
-#  System Architecture
-
-User Input (Camera / Video Upload)
-                │
-                ▼
-        Video Frame Extraction
-                │
-                ▼
-        Frame Preprocessing
-                │
-        ┌───────────────┐
-        │               │
-        ▼               ▼
- Violence Detection   Weapon Detection
-    (CNN-GRU)            (YOLOv8)
-        │               │
-        └───────┬───────┘
-                ▼
-        Threat Classification
-                │
-                ▼
-         Alert Generation
-
-
-#  Project Structure
-
-Smart-Survelliance-System/
-│
-├── models/
-│   ├── violence_model.py
-│   └── yolo_weapon_model.py
-│
-├── uploads/
-│   └── sample_videos
-│
-├── utils/
-│   ├── preprocessing.py
-│   └── helper_functions.py
-│
-├── outputs/
-│   └── detection_results
-│
-├── camera_test.py
-├── main.py
-├── requirements.txt
-├── README.md
-└── .gitignore
 
 ---
 
@@ -229,25 +180,29 @@ When suspicious activity is detected:
 
 ##  Home Screen
 
-<img src="images/home.png" width="900">
+<img src="Outputs/<img width="1785" height="885" alt="Screenshot 2026-04-06 195500" src="https://github.com/user-attachments/assets/b371a7ff-b3cf-4a9c-bfb7-60d19e55aa7b" />
+" width="900">
 
 ---
 
 ##  Violence Detection Output
 
-<img src="images/violence_detection.png" width="900">
+<img src="Outputs/<img width="1814" height="881" alt="Screenshot 2026-04-06 195652" src="https://github.com/user-attachments/assets/75c188f9-2b5c-47b3-a1a5-6a2b935314a9" />
+" width="900">
 
 ---
 
 ##  Weapon Detection Output
 
-<img src="images/weapon_detection.png" width="900">
+<img src="Outputs/<img width="1760" height="984" alt="Screenshot 2026-04-06 195828" src="https://github.com/user-attachments/assets/16dc1a2b-6d43-4a2b-b5ef-296529fe0b65" />
+" width="900">
 
 ---
 
 ##  Real-Time Webcam Detection
 
-<img src="images/realtime_detection.png" width="900">
+<img src="Output/<img width="1012" height="935" alt="Screenshot 2026-04-06 195811" src="https://github.com/user-attachments/assets/7ca7ebc2-89d6-4a74-a8a0-e510206e95bd" />
+" width="900">
 
 ---
 
