@@ -1,4 +1,4 @@
-<img width="1814" height="881" alt="Screenshot 2026-04-06 195652" src="https://github.com/user-attachments/assets/af37f19e-7dd4-48ba-85dc-657d52fe361e" />
+
 # Smart Surveillance System
 
 AI-powered real-time surveillance system for detecting violence and weapons using Deep Learning and Computer Vision.
